@@ -1,0 +1,17 @@
+{
+  "name": "sandpit",
+  "scripts": {
+    "start": "rollup -c",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^1.0.1"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^1.0.0",
+    "rollup": "^2.75.6",
+    "@rollup/plugin-node-resolve": "^13.3.0",
+    "@rollup/plugin-typescript": "^8.3.3",
+    "tslib": "^2.4.0"
+  }
+}

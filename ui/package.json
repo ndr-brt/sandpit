@@ -1,0 +1,19 @@
+{
+  "name": "codemirror-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "rollup -c",
+    "tauri": "tauri"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@codemirror/commands": "^6.0.0",
+    "@codemirror/state": "^6.0.1",
+    "@codemirror/theme-one-dark": "^6.0.0",
+    "@codemirror/view": "^6.0.1"
+  }
+}
