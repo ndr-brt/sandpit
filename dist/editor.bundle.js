@@ -1,4 +1,4 @@
-(function () {
+(function (child_process) {
    'use strict';
 
    /**
@@ -15001,24 +15001,56 @@
        }
    }, { dark: true });
 
-   class EvalBlock {
-       key = "Ctrl-Enter";
-       run() {
-           console.log("Eval block!");
-           return true;
+   var EvaluateAll = /** @class */ (function () {
+       function EvaluateAll() {
+           this.key = "Ctrl-Enter";
        }
-   }
+       EvaluateAll.prototype.run = function (view) {
+           // let tidal = view.state.field('tidal')
+           // console.log(tidal)
+           view.dispatch({
+               changes: { from: 0, insert: "evaluate!" }
+           });
+           return true;
+       };
+       return EvaluateAll;
+   }());
 
+   var Tidal = /** @class */ (function () {
+       function Tidal() {
+       }
+       Tidal.prototype.start = function () {
+           this.process = child_process.spawn('ghci', [], { shell: true });
+       };
+       Tidal.prototype.writeLine = function (line) {
+           this.process.stdin.write(line);
+           this.process.stdin.write('\n');
+       };
+       return Tidal;
+   }());
+
+   var tidal = StateField.define({
+       create: function (state) {
+           console.log('StateField CREATE');
+           return new Tidal();
+       },
+       update: function (value, transaction) {
+           console.log('State Field UPDATE');
+           value.start();
+           return value;
+       }
+   });
    new EditorView({
        state: EditorState.create({
-           doc: "Hello world",
+           doc: "Hello worldfdsafdsafdsaf",
            extensions: [
-               keymap.of([new EvalBlock()]),
+               keymap.of([new EvaluateAll()]),
                keymap.of(defaultKeymap),
-               oneDarkTheme
+               oneDarkTheme,
+               tidal
            ]
        }),
        parent: document.body
    });
 
-})();
+})(child_process);

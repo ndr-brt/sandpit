@@ -1,10 +1,14 @@
-import { KeyBinding } from "@codemirror/view"
+import { EditorView, KeyBinding } from "@codemirror/view"
 
-export class EvalBlock implements KeyBinding {
+export class EvaluateAll implements KeyBinding {
     key = "Ctrl-Enter"
     
-    run() { 
-        console.log("Eval block!"); 
-        return true 
+    run(view: EditorView) {
+        // let tidal = view.state.field('tidal')
+        // console.log(tidal)
+        view.dispatch({
+            changes: { from: 0, insert: "evaluate!" }
+        })
+        return true;
     }
 }
