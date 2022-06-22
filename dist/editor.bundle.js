@@ -1,4 +1,4 @@
-(function (child_process) {
+(function () {
    'use strict';
 
    /**
@@ -15001,13 +15001,17 @@
        }
    }, { dark: true });
 
+   var r$1=function(){return (r$1=Object.assign||function(t){for(var n,r=1,e=arguments.length;r<e;r++)for(var o in n=arguments[r])Object.prototype.hasOwnProperty.call(n,o)&&(t[o]=n[o]);return t}).apply(this,arguments)};function o$1(t,n,r,e){return new(r||(r=Promise))((function(o,a){function c(t){try{i(e.next(t));}catch(t){a(t);}}function l(t){try{i(e.throw(t));}catch(t){a(t);}}function i(t){var n;t.done?o(t.value):(n=t.value,n instanceof r?n:new r((function(t){t(n);}))).then(c,l);}i((e=e.apply(t,n||[])).next());}))}function a(t,n){var r,e,o,a,c={label:0,sent:function(){if(1&o[0])throw o[1];return o[1]},trys:[],ops:[]};return a={next:l(0),throw:l(1),return:l(2)},"function"==typeof Symbol&&(a[Symbol.iterator]=function(){return this}),a;function l(a){return function(l){return function(a){if(r)throw new TypeError("Generator is already executing.");for(;c;)try{if(r=1,e&&(o=2&a[0]?e.return:a[0]?e.throw||((o=e.return)&&o.call(e),0):e.next)&&!(o=o.call(e,a[1])).done)return o;switch(e=0,o&&(a=[2&a[0],o.value]),a[0]){case 0:case 1:o=a;break;case 4:return c.label++,{value:a[1],done:!1};case 5:c.label++,e=a[1],a=[0];continue;case 7:a=c.ops.pop(),c.trys.pop();continue;default:if(!(o=c.trys,(o=o.length>0&&o[o.length-1])||6!==a[0]&&2!==a[0])){c=0;continue}if(3===a[0]&&(!o||a[1]>o[0]&&a[1]<o[3])){c.label=a[1];break}if(6===a[0]&&c.label<o[1]){c.label=o[1],o=a;break}if(o&&c.label<o[2]){c.label=o[2],c.ops.push(a);break}o[2]&&c.ops.pop(),c.trys.pop();continue}a=n.call(t,c);}catch(t){a=[6,t],e=0;}finally{r=o=0;}if(5&a[0])throw a[1];return {value:a[0]?a[1]:void 0,done:!0}}([a,l])}}}
+
+   function o(n,t){void 0===t&&(t=!1);var e=window.crypto.getRandomValues(new Uint32Array(1))[0],o="_".concat(e);return Object.defineProperty(window,o,{value:function(e){return t&&Reflect.deleteProperty(window,o),null==n?void 0:n(e)},writable:!1,configurable:!0}),e}function r(r,c){return void 0===c&&(c={}),o$1(this,void 0,void 0,(function(){return a(this,(function(n){return [2,new Promise((function(n,t){var i=o((function(t){n(t),Reflect.deleteProperty(window,"_".concat(a));}),!0),a=o((function(n){t(n),Reflect.deleteProperty(window,"_".concat(i));}),!0);window.__TAURI_IPC__(r$1({cmd:r,callback:i,error:a},c));}))]}))}))}function c(n,t){void 0===t&&(t="asset");var e=encodeURIComponent(n);return navigator.userAgent.includes("Windows")?"https://".concat(t,".localhost/").concat(e):"".concat(t,"://").concat(e)}Object.freeze({__proto__:null,transformCallback:o,invoke:r,convertFileSrc:c});
+
    var EvaluateAll = /** @class */ (function () {
        function EvaluateAll() {
            this.key = "Ctrl-Enter";
        }
        EvaluateAll.prototype.run = function (view) {
-           // let tidal = view.state.field('tidal')
-           // console.log(tidal)
+           r('my_custom_command')
+               .then(function (v) { return console.log("Report should be written! result ".concat(v)); });
            view.dispatch({
                changes: { from: 0, insert: "evaluate!" }
            });
@@ -15016,41 +15020,16 @@
        return EvaluateAll;
    }());
 
-   var Tidal = /** @class */ (function () {
-       function Tidal() {
-       }
-       Tidal.prototype.start = function () {
-           this.process = child_process.spawn('ghci', [], { shell: true });
-       };
-       Tidal.prototype.writeLine = function (line) {
-           this.process.stdin.write(line);
-           this.process.stdin.write('\n');
-       };
-       return Tidal;
-   }());
-
-   var tidal = StateField.define({
-       create: function (state) {
-           console.log('StateField CREATE');
-           return new Tidal();
-       },
-       update: function (value, transaction) {
-           console.log('State Field UPDATE');
-           value.start();
-           return value;
-       }
-   });
    new EditorView({
        state: EditorState.create({
            doc: "Hello worldfdsafdsafdsaf",
            extensions: [
                keymap.of([new EvaluateAll()]),
                keymap.of(defaultKeymap),
-               oneDarkTheme,
-               tidal
+               oneDarkTheme
            ]
        }),
        parent: document.body
    });
 
-})(child_process);
+})();
