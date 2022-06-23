@@ -15010,7 +15010,7 @@
            this.key = "Ctrl-Enter";
        }
        EvaluateAll.prototype.run = function (view) {
-           r('my_custom_command')
+           r('tidal_ghci_start')
                .then(function (v) { return console.log("Report should be written! result ".concat(v)); });
            view.dispatch({
                changes: { from: 0, insert: "evaluate!" }
