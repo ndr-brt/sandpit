@@ -7,7 +7,7 @@ export class EvaluateAll implements KeyBinding {
     run(view: EditorView) {
         invoke('tidal_ghci_start')
             .then(v => console.log(`Report should be written! result ${v}`))
-            
+
         view.dispatch({
             changes: { from: 0, insert: "evaluate!" }
         })
