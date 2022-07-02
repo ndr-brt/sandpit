@@ -1,9 +1,12 @@
 use crossbeam_channel::{unbounded, Sender, Receiver};
 use std::thread;
 use tauri::api::process::{Command, CommandEvent};
+use std::fs::File;
+use std::io::{self, BufRead};
+use std::path::Path;
 
 pub struct Tidal {
-    isRunning: bool,
+    is_running: bool,
     sink: Sender<String>,
     stream: Receiver<String>
 }
@@ -34,11 +37,26 @@ impl Tidal {
           }
         });
 
-        return Tidal { isRunning: false, sink: ghci_sink, stream: stream_clone };
+        return Tidal { is_running: false, sink: ghci_sink, stream: stream_clone };
     }
 
-    pub fn sendLine(&self, line: String) {
+    pub fn send_line(&self, line: String) {
         println!("==> {}", line);
         self.sink.send((line + "\n").to_string());
+    }
+
+    pub fn is_running(&self) -> bool {
+        return self.is_running;
+    }
+
+    pub fn start(&self, boot_tidal_path: String) {
+        let file = File::open(boot_tidal_path).expect("Cannot find tidal boot file");
+        let lines = io::BufReader::new(file).lines();
+        for line in lines {
+            if let Ok(value) = line {
+                self.send_line(value);
+            }
+        }
+        // self.is_running = true;
     }
 }

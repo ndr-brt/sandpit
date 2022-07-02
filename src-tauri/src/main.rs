@@ -13,8 +13,10 @@ struct MyState(Tidal);
 #[tauri::command]
 fn tidal_ghci_start(state: tauri::State<MyState>) {
   println!("Will send stuff to ghci.");
-  state.0.sendLine("import Sound.Tidal.Context".to_string());
-  state.0.sendLine("tidal_version".to_string());
+  if !state.0.is_running() {
+    state.0.start("/home/andrea/Code/livecoding/sc-adente/BootTidal.hs".to_string())
+  }
+  state.0.send_line("tidal_version".to_string());
 }
 
 
