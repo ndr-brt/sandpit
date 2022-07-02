@@ -49,7 +49,7 @@ impl Tidal {
         return self.is_running;
     }
 
-    pub fn start(&self, boot_tidal_path: String) {
+    pub fn start(&mut self, boot_tidal_path: String) {
         let file = File::open(boot_tidal_path).expect("Cannot find tidal boot file");
         let lines = io::BufReader::new(file).lines();
         for line in lines {
@@ -57,6 +57,6 @@ impl Tidal {
                 self.send_line(value);
             }
         }
-        // self.is_running = true;
+        self.is_running = true;
     }
 }

@@ -5,18 +5,19 @@
 
 mod tidal;
 
-
+use std::sync::Mutex;
 use crate::tidal::Tidal;
 
-struct MyState(Tidal);
+struct MyState(Mutex<Tidal>);
 
 #[tauri::command]
 fn tidal_ghci_start(state: tauri::State<MyState>) {
   println!("Will send stuff to ghci.");
-  if !state.0.is_running() {
-    state.0.start("/home/andrea/Code/livecoding/sc-adente/BootTidal.hs".to_string())
+  let mut tidal = state.0.lock().unwrap();
+  if !tidal.is_running() {
+    tidal.start("/home/andrea/Code/livecoding/sc-adente/BootTidal.hs".to_string())
   }
-  state.0.send_line("tidal_version".to_string());
+  tidal.send_line("tidal_version".to_string());
 }
 
 
@@ -25,7 +26,7 @@ fn main() {
 
   let context = tauri::generate_context!();
   tauri::Builder::default()
-    .manage(MyState(tidal))
+    .manage(MyState(Mutex::new(tidal)))
     .invoke_handler(tauri::generate_handler![tidal_ghci_start])
     .menu(tauri::Menu::os_default(&context.package_info().name))
     .run(context)
