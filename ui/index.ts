@@ -6,7 +6,7 @@ import { EvaluateAll } from "./keymaps"
 
 let editor = new EditorView({
   state: EditorState.create({
-    doc: "Hello worldfdsafdsafdsaf",
+    doc: "Hello world",
     extensions: [
       keymap.of([new EvaluateAll()]),
       keymap.of(defaultKeymap), 
