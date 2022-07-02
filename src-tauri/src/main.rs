@@ -17,8 +17,8 @@ struct MyState(Sender<String>);
 #[tauri::command]
 fn tidal_ghci_start(state: tauri::State<MyState>) {
   println!("Will send stuff to ghci.");
-  state.0.send("import Sound.Tidal.Context\n".to_string());
-  state.0.send("tidal_version\n".to_string());
+  state.0.send("import Sound.Tidal.Context".to_string());
+  state.0.send("tidal_version".to_string());
 
   
 
@@ -48,7 +48,6 @@ fn tidal_ghci_start(state: tauri::State<MyState>) {
 
 
 fn main() {
-  let (tidal_sink, tidal_stream) = unbounded::<String>();
   let (ghci_sink, ghci_stream) = unbounded::<String>();
 
   tauri::async_runtime::spawn(async move {
@@ -59,21 +58,20 @@ fn main() {
     thread::spawn(move || {
       loop {
         if let Ok(line) = ghci_stream.try_recv() {
-          println!("received stuff to send to the process {}", line);
-          child.write(line.as_bytes());
+          println!("==> {}", line);
+          child.write((line + "\n").as_bytes());
         }
       }
     });
 
-    let mut i = 0;
+    // let mut i = 0;
     while let Some(event) = rx.recv().await {
       if let CommandEvent::Stdout(line) = event {
-        println!("got: {}", line);
-        i += 1;
-        if i == 4 {
-          // ghci_sink.send("message from Ghci\n".to_string());
-          i = 0;
-        }
+        println!("t> {}", line);
+        // i += 1;
+        // if i == 4 {
+        //   i = 0;
+        // }
       }
     }
   });
