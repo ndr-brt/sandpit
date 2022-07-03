@@ -2,7 +2,15 @@ html,
 body {
     margin: 0;
     padding: 0;
-    background: #fff;
-    color: #444;
-    font-family: 'Gill Sans','Gill Sans MT',Calibri,'Trebuchet MS',sans-serif
+    background: #282c34;
+    color: #abb2bf;
+    font-family: 'FreeMono','monospace';
+}
+
+h1 {
+    text-align: center;
+}
+
+.cm-content {
+    font-size: 18pt;
 }
