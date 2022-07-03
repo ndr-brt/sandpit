@@ -5,12 +5,11 @@ export class EvaluateAll implements KeyBinding {
     key = "Ctrl-Enter"
     
     run(view: EditorView) {
-        invoke('tidal_ghci_start')
+        let code = view.state.doc.toString()
+
+        invoke('tidal_eval', { code })
             .then(v => console.log(`Report should be written! result ${v}`))
 
-        view.dispatch({
-            changes: { from: 0, insert: "evaluate!" }
-        })
         return true;
     }
 }

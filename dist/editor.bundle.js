@@ -15010,11 +15010,9 @@
            this.key = "Ctrl-Enter";
        }
        EvaluateAll.prototype.run = function (view) {
-           r('tidal_ghci_start')
+           var code = view.state.doc.toString();
+           r('tidal_eval', { code: code })
                .then(function (v) { return console.log("Report should be written! result ".concat(v)); });
-           view.dispatch({
-               changes: { from: 0, insert: "evaluate!" }
-           });
            return true;
        };
        return EvaluateAll;
@@ -15022,7 +15020,6 @@
 
    new EditorView({
        state: EditorState.create({
-           doc: "Hello world",
            extensions: [
                keymap.of([new EvaluateAll()]),
                keymap.of(defaultKeymap),
