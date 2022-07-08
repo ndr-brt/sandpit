@@ -20,13 +20,20 @@ fn tidal_eval(state: tauri::State<MyState>, code: String) {
 }
 
 fn main() {
-  let tidal = Tidal::new();
+  let tidal = Mutex::new(Tidal::new());
 
   let context = tauri::generate_context!();
-  tauri::Builder::default()
-    .manage(MyState(Mutex::new(tidal)))
+  let app = tauri::Builder::default()
+    .manage(MyState(tidal))
     .invoke_handler(tauri::generate_handler![tidal_eval])
     .menu(tauri::Menu::os_default(&context.package_info().name))
-    .run(context)
+    .build(context)
     .expect("error while running tauri application");
+
+  app.run(|_app_handle, event| match event {
+    tauri::RunEvent::ExitRequested { api, .. } => {
+      api.prevent_exit();
+    }
+    _ => {}
+  });
 }
