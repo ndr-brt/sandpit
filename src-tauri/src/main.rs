@@ -6,15 +6,16 @@
 mod tidal;
 
 use std::sync::Mutex;
+use tauri::Window;
 use crate::tidal::Tidal;
 
 struct MyState(Mutex<Tidal>);
 
 #[tauri::command]
-fn tidal_eval(state: tauri::State<MyState>, code: String) {
+fn tidal_eval(state: tauri::State<MyState>, window: Window, code: String) {
   let mut tidal = state.0.lock().unwrap();
   if !tidal.is_running() {
-    tidal.start("/home/andrea/Code/livecoding/sc-adente/BootTidal.hs".to_string())
+    tidal.start(window, "/home/andrea/Code/livecoding/sc-adente/BootTidal.hs".to_string())
   }
   tidal.send_line(code.to_string());
 }

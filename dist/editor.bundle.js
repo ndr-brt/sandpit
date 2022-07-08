@@ -11099,6 +11099,165 @@
    if (CanHidePrimary)
        themeSpec[".cm-line"].caretColor = "transparent !important";
 
+   const panelConfig = /*@__PURE__*/Facet.define({
+       combine(configs) {
+           let topContainer, bottomContainer;
+           for (let c of configs) {
+               topContainer = topContainer || c.topContainer;
+               bottomContainer = bottomContainer || c.bottomContainer;
+           }
+           return { topContainer, bottomContainer };
+       }
+   });
+   const panelPlugin = /*@__PURE__*/ViewPlugin.fromClass(class {
+       constructor(view) {
+           this.input = view.state.facet(showPanel);
+           this.specs = this.input.filter(s => s);
+           this.panels = this.specs.map(spec => spec(view));
+           let conf = view.state.facet(panelConfig);
+           this.top = new PanelGroup(view, true, conf.topContainer);
+           this.bottom = new PanelGroup(view, false, conf.bottomContainer);
+           this.top.sync(this.panels.filter(p => p.top));
+           this.bottom.sync(this.panels.filter(p => !p.top));
+           for (let p of this.panels) {
+               p.dom.classList.add("cm-panel");
+               if (p.mount)
+                   p.mount();
+           }
+       }
+       update(update) {
+           let conf = update.state.facet(panelConfig);
+           if (this.top.container != conf.topContainer) {
+               this.top.sync([]);
+               this.top = new PanelGroup(update.view, true, conf.topContainer);
+           }
+           if (this.bottom.container != conf.bottomContainer) {
+               this.bottom.sync([]);
+               this.bottom = new PanelGroup(update.view, false, conf.bottomContainer);
+           }
+           this.top.syncClasses();
+           this.bottom.syncClasses();
+           let input = update.state.facet(showPanel);
+           if (input != this.input) {
+               let specs = input.filter(x => x);
+               let panels = [], top = [], bottom = [], mount = [];
+               for (let spec of specs) {
+                   let known = this.specs.indexOf(spec), panel;
+                   if (known < 0) {
+                       panel = spec(update.view);
+                       mount.push(panel);
+                   }
+                   else {
+                       panel = this.panels[known];
+                       if (panel.update)
+                           panel.update(update);
+                   }
+                   panels.push(panel);
+                   (panel.top ? top : bottom).push(panel);
+               }
+               this.specs = specs;
+               this.panels = panels;
+               this.top.sync(top);
+               this.bottom.sync(bottom);
+               for (let p of mount) {
+                   p.dom.classList.add("cm-panel");
+                   if (p.mount)
+                       p.mount();
+               }
+           }
+           else {
+               for (let p of this.panels)
+                   if (p.update)
+                       p.update(update);
+           }
+       }
+       destroy() {
+           this.top.sync([]);
+           this.bottom.sync([]);
+       }
+   }, {
+       provide: plugin => EditorView.scrollMargins.of(view => {
+           let value = view.plugin(plugin);
+           return value && { top: value.top.scrollMargin(), bottom: value.bottom.scrollMargin() };
+       })
+   });
+   class PanelGroup {
+       constructor(view, top, container) {
+           this.view = view;
+           this.top = top;
+           this.container = container;
+           this.dom = undefined;
+           this.classes = "";
+           this.panels = [];
+           this.syncClasses();
+       }
+       sync(panels) {
+           for (let p of this.panels)
+               if (p.destroy && panels.indexOf(p) < 0)
+                   p.destroy();
+           this.panels = panels;
+           this.syncDOM();
+       }
+       syncDOM() {
+           if (this.panels.length == 0) {
+               if (this.dom) {
+                   this.dom.remove();
+                   this.dom = undefined;
+               }
+               return;
+           }
+           if (!this.dom) {
+               this.dom = document.createElement("div");
+               this.dom.className = this.top ? "cm-panels cm-panels-top" : "cm-panels cm-panels-bottom";
+               this.dom.style[this.top ? "top" : "bottom"] = "0";
+               let parent = this.container || this.view.dom;
+               parent.insertBefore(this.dom, this.top ? parent.firstChild : null);
+           }
+           let curDOM = this.dom.firstChild;
+           for (let panel of this.panels) {
+               if (panel.dom.parentNode == this.dom) {
+                   while (curDOM != panel.dom)
+                       curDOM = rm(curDOM);
+                   curDOM = curDOM.nextSibling;
+               }
+               else {
+                   this.dom.insertBefore(panel.dom, curDOM);
+               }
+           }
+           while (curDOM)
+               curDOM = rm(curDOM);
+       }
+       scrollMargin() {
+           return !this.dom || this.container ? 0
+               : Math.max(0, this.top ?
+                   this.dom.getBoundingClientRect().bottom - Math.max(0, this.view.scrollDOM.getBoundingClientRect().top) :
+                   Math.min(innerHeight, this.view.scrollDOM.getBoundingClientRect().bottom) - this.dom.getBoundingClientRect().top);
+       }
+       syncClasses() {
+           if (!this.container || this.classes == this.view.themeClasses)
+               return;
+           for (let cls of this.classes.split(" "))
+               if (cls)
+                   this.container.classList.remove(cls);
+           for (let cls of (this.classes = this.view.themeClasses).split(" "))
+               if (cls)
+                   this.container.classList.add(cls);
+       }
+   }
+   function rm(node) {
+       let next = node.nextSibling;
+       node.remove();
+       return next;
+   }
+   /**
+   Opening a panel is done by providing a constructor function for
+   the panel through this facet. (The panel is closed again when its
+   constructor is no longer provided.) Values of `null` are ignored.
+   */
+   const showPanel = /*@__PURE__*/Facet.define({
+       enables: panelPlugin
+   });
+
    /**
    A gutter marker represents a bit of information attached to a line
    in a specific gutter. Your own custom markers have to extend this
@@ -15001,9 +15160,9 @@
        }
    }, { dark: true });
 
-   var r$1=function(){return (r$1=Object.assign||function(t){for(var n,r=1,e=arguments.length;r<e;r++)for(var o in n=arguments[r])Object.prototype.hasOwnProperty.call(n,o)&&(t[o]=n[o]);return t}).apply(this,arguments)};function o$1(t,n,r,e){return new(r||(r=Promise))((function(o,a){function c(t){try{i(e.next(t));}catch(t){a(t);}}function l(t){try{i(e.throw(t));}catch(t){a(t);}}function i(t){var n;t.done?o(t.value):(n=t.value,n instanceof r?n:new r((function(t){t(n);}))).then(c,l);}i((e=e.apply(t,n||[])).next());}))}function a(t,n){var r,e,o,a,c={label:0,sent:function(){if(1&o[0])throw o[1];return o[1]},trys:[],ops:[]};return a={next:l(0),throw:l(1),return:l(2)},"function"==typeof Symbol&&(a[Symbol.iterator]=function(){return this}),a;function l(a){return function(l){return function(a){if(r)throw new TypeError("Generator is already executing.");for(;c;)try{if(r=1,e&&(o=2&a[0]?e.return:a[0]?e.throw||((o=e.return)&&o.call(e),0):e.next)&&!(o=o.call(e,a[1])).done)return o;switch(e=0,o&&(a=[2&a[0],o.value]),a[0]){case 0:case 1:o=a;break;case 4:return c.label++,{value:a[1],done:!1};case 5:c.label++,e=a[1],a=[0];continue;case 7:a=c.ops.pop(),c.trys.pop();continue;default:if(!(o=c.trys,(o=o.length>0&&o[o.length-1])||6!==a[0]&&2!==a[0])){c=0;continue}if(3===a[0]&&(!o||a[1]>o[0]&&a[1]<o[3])){c.label=a[1];break}if(6===a[0]&&c.label<o[1]){c.label=o[1],o=a;break}if(o&&c.label<o[2]){c.label=o[2],c.ops.push(a);break}o[2]&&c.ops.pop(),c.trys.pop();continue}a=n.call(t,c);}catch(t){a=[6,t],e=0;}finally{r=o=0;}if(5&a[0])throw a[1];return {value:a[0]?a[1]:void 0,done:!0}}([a,l])}}}
+   var r$2=function(){return (r$2=Object.assign||function(t){for(var n,r=1,e=arguments.length;r<e;r++)for(var o in n=arguments[r])Object.prototype.hasOwnProperty.call(n,o)&&(t[o]=n[o]);return t}).apply(this,arguments)};function o$3(t,n,r,e){return new(r||(r=Promise))((function(o,a){function c(t){try{i(e.next(t));}catch(t){a(t);}}function l(t){try{i(e.throw(t));}catch(t){a(t);}}function i(t){var n;t.done?o(t.value):(n=t.value,n instanceof r?n:new r((function(t){t(n);}))).then(c,l);}i((e=e.apply(t,n||[])).next());}))}function a(t,n){var r,e,o,a,c={label:0,sent:function(){if(1&o[0])throw o[1];return o[1]},trys:[],ops:[]};return a={next:l(0),throw:l(1),return:l(2)},"function"==typeof Symbol&&(a[Symbol.iterator]=function(){return this}),a;function l(a){return function(l){return function(a){if(r)throw new TypeError("Generator is already executing.");for(;c;)try{if(r=1,e&&(o=2&a[0]?e.return:a[0]?e.throw||((o=e.return)&&o.call(e),0):e.next)&&!(o=o.call(e,a[1])).done)return o;switch(e=0,o&&(a=[2&a[0],o.value]),a[0]){case 0:case 1:o=a;break;case 4:return c.label++,{value:a[1],done:!1};case 5:c.label++,e=a[1],a=[0];continue;case 7:a=c.ops.pop(),c.trys.pop();continue;default:if(!(o=c.trys,(o=o.length>0&&o[o.length-1])||6!==a[0]&&2!==a[0])){c=0;continue}if(3===a[0]&&(!o||a[1]>o[0]&&a[1]<o[3])){c.label=a[1];break}if(6===a[0]&&c.label<o[1]){c.label=o[1],o=a;break}if(o&&c.label<o[2]){c.label=o[2],c.ops.push(a);break}o[2]&&c.ops.pop(),c.trys.pop();continue}a=n.call(t,c);}catch(t){a=[6,t],e=0;}finally{r=o=0;}if(5&a[0])throw a[1];return {value:a[0]?a[1]:void 0,done:!0}}([a,l])}}}
 
-   function o(n,t){void 0===t&&(t=!1);var e=window.crypto.getRandomValues(new Uint32Array(1))[0],o="_".concat(e);return Object.defineProperty(window,o,{value:function(e){return t&&Reflect.deleteProperty(window,o),null==n?void 0:n(e)},writable:!1,configurable:!0}),e}function r(r,c){return void 0===c&&(c={}),o$1(this,void 0,void 0,(function(){return a(this,(function(n){return [2,new Promise((function(n,t){var i=o((function(t){n(t),Reflect.deleteProperty(window,"_".concat(a));}),!0),a=o((function(n){t(n),Reflect.deleteProperty(window,"_".concat(i));}),!0);window.__TAURI_IPC__(r$1({cmd:r,callback:i,error:a},c));}))]}))}))}function c(n,t){void 0===t&&(t="asset");var e=encodeURIComponent(n);return navigator.userAgent.includes("Windows")?"https://".concat(t,".localhost/").concat(e):"".concat(t,"://").concat(e)}Object.freeze({__proto__:null,transformCallback:o,invoke:r,convertFileSrc:c});
+   function o$2(n,t){void 0===t&&(t=!1);var e=window.crypto.getRandomValues(new Uint32Array(1))[0],o="_".concat(e);return Object.defineProperty(window,o,{value:function(e){return t&&Reflect.deleteProperty(window,o),null==n?void 0:n(e)},writable:!1,configurable:!0}),e}function r$1(r,c){return void 0===c&&(c={}),o$3(this,void 0,void 0,(function(){return a(this,(function(n){return [2,new Promise((function(n,t){var i=o$2((function(t){n(t),Reflect.deleteProperty(window,"_".concat(a));}),!0),a=o$2((function(n){t(n),Reflect.deleteProperty(window,"_".concat(i));}),!0);window.__TAURI_IPC__(r$2({cmd:r,callback:i,error:a},c));}))]}))}))}function c(n,t){void 0===t&&(t="asset");var e=encodeURIComponent(n);return navigator.userAgent.includes("Windows")?"https://".concat(t,".localhost/").concat(e):"".concat(t,"://").concat(e)}Object.freeze({__proto__:null,transformCallback:o$2,invoke:r$1,convertFileSrc:c});
 
    var EvaluateAll = /** @class */ (function () {
        function EvaluateAll() {
@@ -15011,19 +15170,37 @@
        }
        EvaluateAll.prototype.run = function (view) {
            var code = view.state.doc.toString();
-           r('tidal_eval', { code: code })
+           r$1('tidal_eval', { code: code })
                .then(function (v) { return console.log("Report should be written! result ".concat(v)); });
            return true;
        };
        return EvaluateAll;
    }());
 
+   function o$1(o){return o$3(this,void 0,void 0,(function(){return a(this,(function(i){return [2,r$1("tauri",o)]}))}))}
+
+   function r(e,r){return o$3(this,void 0,void 0,(function(){return a(this,(function(t){return [2,o$1({__tauriModule:"Event",message:{cmd:"unlisten",event:e,eventId:r}})]}))}))}function u$1(e,r,u){return o$3(this,void 0,void 0,(function(){return a(this,(function(t){switch(t.label){case 0:return [4,o$1({__tauriModule:"Event",message:{cmd:"emit",event:e,windowLabel:r,payload:"string"==typeof u?u:JSON.stringify(u)}})];case 1:return t.sent(),[2]}}))}))}function o(u,o,s){return o$3(this,void 0,void 0,(function(){var a$1=this;return a(this,(function(c){return [2,o$1({__tauriModule:"Event",message:{cmd:"listen",event:u,windowLabel:o,handler:o$2(s)}}).then((function(i){return function(){return o$3(a$1,void 0,void 0,(function(){return a(this,(function(t){return [2,r(u,i)]}))}))}}))]}))}))}function s$1(i,e,u){return o$3(this,void 0,void 0,(function(){return a(this,(function(t){return [2,o(i,e,(function(t){u(t),r(i,t.id).catch((function(){}));}))]}))}))}
+
+   function e(o$1,r){return o$3(this,void 0,void 0,(function(){return a(this,(function(n){return [2,o(o$1,null,r)]}))}))}function u(i,r){return o$3(this,void 0,void 0,(function(){return a(this,(function(n){return [2,s$1(i,null,r)]}))}))}function s(i,o){return o$3(this,void 0,void 0,(function(){return a(this,(function(n){return [2,u$1(i,void 0,o)]}))}))}Object.freeze({__proto__:null,listen:e,once:u,emit:s});
+
+   function console$1() {
+       return showPanel.of(consolePanel);
+   }
+   function consolePanel(view) {
+       var dom = document.createElement("div");
+       e('log', function (event) {
+           dom.textContent += "".concat(event.payload, "<br>");
+       });
+       return { dom: dom };
+   }
+
    new EditorView({
        state: EditorState.create({
            extensions: [
                keymap.of([new EvaluateAll()]),
                keymap.of(defaultKeymap),
-               oneDarkTheme
+               oneDarkTheme,
+               console$1()
            ]
        }),
        parent: document.body

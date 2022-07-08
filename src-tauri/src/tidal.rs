@@ -1,9 +1,9 @@
 use crossbeam_channel::{unbounded, Sender, Receiver};
 use std::thread;
 use tauri::api::process::{Command, CommandEvent};
+use tauri::{Window};
 use std::fs::File;
 use std::io::{self, BufRead};
-use std::path::Path;
 
 pub struct Tidal {
     is_running: bool,
@@ -27,7 +27,7 @@ impl Tidal {
         return self.is_running;
     }
 
-    pub fn start(&mut self, boot_tidal_path: String) {
+    pub fn start(&mut self, window: Window, boot_tidal_path: String) {
 
         let stream_clone = self.stream.clone();
 
@@ -47,6 +47,7 @@ impl Tidal {
           while let Some(event) = rx.recv().await {
             if let CommandEvent::Stdout(line) = event {
               println!("t> {}", line);
+              window.emit("log", line).unwrap();
             }
           }
         });
