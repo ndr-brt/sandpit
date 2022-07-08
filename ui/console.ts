@@ -9,8 +9,9 @@ export function console() {
 function consolePanel(view: EditorView): Panel {
   let dom = document.createElement("div")
 
-  const unlisten = listen('log', event => {
-    dom.textContent += `${event.payload}<br>`
+  listen('log', event => {
+    dom.appendChild(document.createTextNode(`${event.payload}`));
+    dom.appendChild(document.createElement("br"));
   })
 
   return { dom }

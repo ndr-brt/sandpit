@@ -15189,7 +15189,8 @@
    function consolePanel(view) {
        var dom = document.createElement("div");
        e('log', function (event) {
-           dom.textContent += "".concat(event.payload, "<br>");
+           dom.appendChild(document.createTextNode("".concat(event.payload)));
+           dom.appendChild(document.createElement("br"));
        });
        return { dom: dom };
    }
