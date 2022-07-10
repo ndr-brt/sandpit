@@ -5,6 +5,7 @@ body {
     background: #282c34;
     color: #abb2bf;
     font-family: 'FreeMono','monospace';
+    height: 100%;
 }
 
 h1 {
@@ -13,4 +14,14 @@ h1 {
 
 .cm-content {
     font-size: 18pt;
+}
+
+.cm-editor {
+    height: 100%;
+    position:relative;
+}
+
+.cm-panels-bottom {
+    height: 30%;
+    overflow-y: scroll;
 }

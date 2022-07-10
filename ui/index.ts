@@ -4,6 +4,7 @@ import { defaultKeymap } from "@codemirror/commands"
 import { oneDarkTheme } from "@codemirror/theme-one-dark";
 import { EvaluateAll } from "./keymaps"
 import { console } from "./console"
+import { title } from "./title"
 
 let editor = new EditorView({
   state: EditorState.create({
@@ -11,6 +12,7 @@ let editor = new EditorView({
       keymap.of([new EvaluateAll()]),
       keymap.of(defaultKeymap), 
       oneDarkTheme,
+      title(),
       console()
     ]
   }),

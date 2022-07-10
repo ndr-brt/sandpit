@@ -8,10 +8,12 @@ export function console() {
 
 function consolePanel(view: EditorView): Panel {
   let dom = document.createElement("div")
+  dom.scroll()
 
   listen('log', event => {
-    dom.appendChild(document.createTextNode(`${event.payload}`));
-    dom.appendChild(document.createElement("br"));
+    dom.appendChild(document.createTextNode(`${event.payload}`))
+    dom.appendChild(document.createElement("br"))
+    dom.scrollTo(0, dom.scrollHeight);
   })
 
   return { dom }

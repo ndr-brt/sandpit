@@ -15188,11 +15188,25 @@
    }
    function consolePanel(view) {
        var dom = document.createElement("div");
+       // dom.setAttribute('style', 'overflow-y: scroll;')
+       dom.scroll();
        e('log', function (event) {
            dom.appendChild(document.createTextNode("".concat(event.payload)));
            dom.appendChild(document.createElement("br"));
+           dom.scrollTo(0, dom.scrollHeight);
        });
        return { dom: dom };
+   }
+
+   function title() {
+       return showPanel.of(titlePanel);
+   }
+   function titlePanel(view) {
+       var dom = document.createElement("div");
+       var title = document.createElement('h1');
+       title.textContent = "... sandpit ...";
+       dom.appendChild(title);
+       return { top: true, dom: dom };
    }
 
    new EditorView({
@@ -15201,6 +15215,7 @@
                keymap.of([new EvaluateAll()]),
                keymap.of(defaultKeymap),
                oneDarkTheme,
+               title(),
                console$1()
            ]
        }),
