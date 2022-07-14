@@ -15208,7 +15208,7 @@
        return { top: true, dom: dom };
    }
 
-   new EditorView({
+   var editor = new EditorView({
        state: EditorState.create({
            extensions: [
                keymap.of([new EvaluateAll()]),
@@ -15220,5 +15220,6 @@
        }),
        parent: document.body
    });
+   editor.focus();
 
 })();

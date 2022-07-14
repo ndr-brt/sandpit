@@ -18,3 +18,5 @@ let editor = new EditorView({
   }),
   parent: document.body
 })
+
+editor.focus()
