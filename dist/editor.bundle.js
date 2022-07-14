@@ -15188,12 +15188,11 @@
    }
    function consolePanel(view) {
        var dom = document.createElement("div");
-       // dom.setAttribute('style', 'overflow-y: scroll;')
        dom.scroll();
        e('log', function (event) {
            dom.appendChild(document.createTextNode("".concat(event.payload)));
            dom.appendChild(document.createElement("br"));
-           dom.scrollTo(0, dom.scrollHeight);
+           dom.scrollIntoView({ block: "end", inline: "nearest" });
        });
        return { dom: dom };
    }

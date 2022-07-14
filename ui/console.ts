@@ -13,7 +13,7 @@ function consolePanel(view: EditorView): Panel {
   listen('log', event => {
     dom.appendChild(document.createTextNode(`${event.payload}`))
     dom.appendChild(document.createElement("br"))
-    dom.scrollTo(0, dom.scrollHeight);
+    dom.scrollIntoView({ block: "end", inline: "nearest" })
   })
 
   return { dom }
