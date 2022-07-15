@@ -37,6 +37,6 @@ export class CodeBlock {
     }
 
     public contains(range: SelectionRange): boolean {
-        return range.from >= this.from && range.from < this.from + this.length;
+        return range.from >= this.from && range.from <= this.from + this.length;
     }
 }

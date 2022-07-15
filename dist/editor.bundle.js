@@ -15201,7 +15201,7 @@
            return this.lineBlocks.length === 0;
        };
        CodeBlock.prototype.contains = function (range) {
-           return range.from >= this.from && range.from < this.from + this.length;
+           return range.from >= this.from && range.from <= this.from + this.length;
        };
        return CodeBlock;
    }());
