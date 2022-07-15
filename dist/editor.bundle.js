@@ -15164,15 +15164,67 @@
 
    function o$2(n,t){void 0===t&&(t=!1);var e=window.crypto.getRandomValues(new Uint32Array(1))[0],o="_".concat(e);return Object.defineProperty(window,o,{value:function(e){return t&&Reflect.deleteProperty(window,o),null==n?void 0:n(e)},writable:!1,configurable:!0}),e}function r$1(r,c){return void 0===c&&(c={}),o$3(this,void 0,void 0,(function(){return a(this,(function(n){return [2,new Promise((function(n,t){var i=o$2((function(t){n(t),Reflect.deleteProperty(window,"_".concat(a));}),!0),a=o$2((function(n){t(n),Reflect.deleteProperty(window,"_".concat(i));}),!0);window.__TAURI_IPC__(r$2({cmd:r,callback:i,error:a},c));}))]}))}))}function c(n,t){void 0===t&&(t="asset");var e=encodeURIComponent(n);return navigator.userAgent.includes("Windows")?"https://".concat(t,".localhost/").concat(e):"".concat(t,"://").concat(e)}Object.freeze({__proto__:null,transformCallback:o$2,invoke:r$1,convertFileSrc:c});
 
+   var CodeBlock = /** @class */ (function () {
+       function CodeBlock(lineBlocks) {
+           this.lineBlocks = lineBlocks;
+       }
+       CodeBlock.createFrom = function (blocks) {
+           return blocks.reduce(function (acc, it) {
+               if (acc.length == 0) {
+                   acc.push(new CodeBlock([]));
+               }
+               if (it.length === 0) {
+                   acc.push(new CodeBlock([]));
+               }
+               else {
+                   acc[acc.length - 1].lineBlocks.push(it);
+               }
+               return acc;
+           }, []).filter(function (it) { return !it.isEmpty(); });
+       };
+       Object.defineProperty(CodeBlock.prototype, "from", {
+           get: function () {
+               var _a;
+               return (_a = this.lineBlocks[0]) === null || _a === void 0 ? void 0 : _a.from;
+           },
+           enumerable: false,
+           configurable: true
+       });
+       Object.defineProperty(CodeBlock.prototype, "length", {
+           get: function () {
+               return this.lineBlocks.map(function (it) { return it.length; }).reduce(function (a, b) { return a + b; }) + this.lineBlocks.length - 1;
+           },
+           enumerable: false,
+           configurable: true
+       });
+       CodeBlock.prototype.isEmpty = function () {
+           return this.lineBlocks.length === 0;
+       };
+       CodeBlock.prototype.contains = function (range) {
+           return range.from >= this.from && range.from < this.from + this.length;
+       };
+       return CodeBlock;
+   }());
+
    var EvaluateAll = /** @class */ (function () {
        function EvaluateAll() {
            this.key = "Ctrl-Enter";
        }
        EvaluateAll.prototype.run = function (view) {
-           var code = view.state.doc.toString();
-           r$1('tidal_eval', { code: code })
-               .then(function (v) { return console.log("Report should be written! result ".concat(v)); });
-           return true;
+           var cursorAt = view.state.selection.ranges[0];
+           var blocks = CodeBlock.createFrom(view.viewportLineBlocks);
+           var codeBlock = blocks
+               .find(function (block) { return block.contains(cursorAt); });
+           if (codeBlock) {
+               var code = view.state.doc.sliceString(codeBlock.from, codeBlock.from + codeBlock.length);
+               console.log(code);
+               r$1('tidal_eval', { code: code })
+                   .then(function (v) { return console.log("Report should be written! result ".concat(v)); });
+               return true;
+           }
+           else {
+               return false;
+           }
        };
        return EvaluateAll;
    }());

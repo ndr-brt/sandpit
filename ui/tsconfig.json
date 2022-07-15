@@ -1,6 +1,8 @@
 {    
     "compilerOptions": {
+        "esModuleInterop": true,
         "moduleResolution": "node",
-        "target": "esnext"
+        "target": "es6",
+        "types": ["node", "jest"]
     }
 }
