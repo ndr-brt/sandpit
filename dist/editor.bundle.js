@@ -15242,7 +15242,7 @@
        var dom = document.createElement("div");
        dom.scroll();
        e('log', function (event) {
-           dom.appendChild(document.createTextNode("".concat(event.payload)));
+           dom.appendChild(document.createTextNode("".concat(event.payload.type, " | ").concat(event.payload.message)));
            dom.appendChild(document.createElement("br"));
            dom.scrollIntoView({ block: "end", inline: "nearest" });
        });

@@ -11,6 +11,12 @@ pub struct Tidal {
     stream: Receiver<String>
 }
 
+#[derive(Clone, serde::Serialize)]
+struct LogPayload {
+  message: String,
+  level: String
+}
+
 impl Tidal {
     pub fn new() -> Tidal {
         let (ghci_sink, ghci_stream) = unbounded::<String>();
@@ -45,9 +51,25 @@ impl Tidal {
           });
       
           while let Some(event) = rx.recv().await {
-            if let CommandEvent::Stdout(line) = event {
-              println!("t> {}", line);
-              window.emit("log", line).unwrap();
+            match event {
+              CommandEvent::Stdout(line) => {
+                println!("t> {}", line);
+                window.emit("log", LogPayload { message: line, level: "info".to_string() })
+                  .expect("Error emitting the log event");
+              },
+              CommandEvent::Stderr(line) => {
+                println!("te> {}", line);
+                window.emit("log", LogPayload { message: line, level: "error".to_string() })
+                  .expect("Error emitting the log event");
+              },
+              CommandEvent::Error(line) => {
+                println!("ERROR {}", line);
+                window.emit("log", LogPayload { message: line, level: "fatal".to_string() })
+                  .expect("Error emitting the log event");
+              },
+              _ => {
+
+              }
             }
           }
         });
