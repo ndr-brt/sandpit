@@ -25,3 +25,19 @@ h1 {
     height: 30%;
     overflow-y: scroll;
 }
+
+@keyframes flash {
+    0% {
+      color: #000;
+      background-color: #ffff77cc;
+    }
+    100% {
+      color: auto;
+      background-color: #00000000;
+    }
+  }
+
+.flash-selection {
+    animation: flash 0.4s linear;
+    background-color: #00000000;
+}

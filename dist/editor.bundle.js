@@ -15207,27 +15207,40 @@
    }());
 
    var EvaluateAll = /** @class */ (function () {
-       function EvaluateAll() {
+       function EvaluateAll(addMarks, filterMarks) {
+           var _this = this;
            this.key = "Ctrl-Enter";
+           this.run = function (view) {
+               var cursorAt = view.state.selection.ranges[0];
+               var blocks = CodeBlock.createFrom(view.viewportLineBlocks);
+               var codeBlock = blocks
+                   .find(function (block) { return block.contains(cursorAt); });
+               if (codeBlock) {
+                   var code = view.state.doc.sliceString(codeBlock.from, codeBlock.from + codeBlock.length);
+                   console.log(code);
+                   console.log(_this);
+                   flash(view, codeBlock.from, codeBlock.length, _this.addMarks);
+                   r$1('tidal_eval', { code: code })
+                       .then(function (v) { return console.log("Report should be written! result ".concat(v)); });
+                   return true;
+               }
+               else {
+                   return false;
+               }
+           };
+           this.addMarks = addMarks;
+           this.filterMarks = filterMarks;
        }
-       EvaluateAll.prototype.run = function (view) {
-           var cursorAt = view.state.selection.ranges[0];
-           var blocks = CodeBlock.createFrom(view.viewportLineBlocks);
-           var codeBlock = blocks
-               .find(function (block) { return block.contains(cursorAt); });
-           if (codeBlock) {
-               var code = view.state.doc.sliceString(codeBlock.from, codeBlock.from + codeBlock.length);
-               console.log(code);
-               r$1('tidal_eval', { code: code })
-                   .then(function (v) { return console.log("Report should be written! result ".concat(v)); });
-               return true;
-           }
-           else {
-               return false;
-           }
-       };
        return EvaluateAll;
    }());
+   function flash(view, from, length, addMarks) {
+       var strikeMark = Decoration.mark({
+           attributes: { "class": "flash-selection" }
+       });
+       view.dispatch({
+           effects: addMarks.of([strikeMark.range(from, from + length)])
+       });
+   }
 
    function o$1(o){return o$3(this,void 0,void 0,(function(){return a(this,(function(i){return [2,r$1("tauri",o)]}))}))}
 
@@ -15260,10 +15273,34 @@
        return { top: true, dom: dom };
    }
 
+   // Effects can be attached to transactions to communicate with the extension
+   var addMarks = StateEffect.define(), filterMarks = StateEffect.define();
+   // This value must be added to the set of extensions to enable this
+   var markField = StateField.define({
+       // Start with an empty set of decorations
+       create: function () { return Decoration.none; },
+       // This is called whenever the editor updates—it computes the new set
+       update: function (value, tr) {
+           // Move the decorations to account for document changes
+           value = value.map(tr.changes);
+           // If this transaction adds or removes decorations, apply those changes
+           for (var _i = 0, _a = tr.effects; _i < _a.length; _i++) {
+               var effect = _a[_i];
+               if (effect.is(addMarks))
+                   value = value.update({ add: effect.value, sort: true });
+               else if (effect.is(filterMarks))
+                   value = value.update({ filter: effect.value });
+           }
+           return value;
+       },
+       // Indicate that this field provides a set of decorations
+       provide: function (f) { return EditorView.decorations.from(f); }
+   });
    var editor = new EditorView({
        state: EditorState.create({
            extensions: [
-               keymap.of([new EvaluateAll()]),
+               markField,
+               keymap.of([new EvaluateAll(addMarks, filterMarks)]),
                keymap.of(defaultKeymap),
                oneDarkTheme,
                title(),

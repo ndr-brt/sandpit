@@ -1,11 +1,19 @@
-import { BlockInfo, EditorView, KeyBinding } from "@codemirror/view"
+import { EditorState, StateEffect, StateEffectType, StateField } from "@codemirror/state";
+import { BlockInfo, Decoration, EditorView, KeyBinding } from "@codemirror/view"
 import { invoke } from '@tauri-apps/api/tauri'
 import { CodeBlock } from "./code-block";
 
 export class EvaluateAll implements KeyBinding {
     key = "Ctrl-Enter"
+    addMarks: StateEffectType<any>;
+    filterMarks: StateEffectType<any>;
+
+    constructor(addMarks: StateEffectType<any>, filterMarks: StateEffectType<any>) {
+        this.addMarks = addMarks
+        this.filterMarks = filterMarks
+    }
     
-    run(view: EditorView) {
+    run = (view: EditorView) => {
 
         let cursorAt = view.state.selection.ranges[0];
 
@@ -19,6 +27,9 @@ export class EvaluateAll implements KeyBinding {
             let code = view.state.doc.sliceString(codeBlock.from, codeBlock.from + codeBlock.length)
 
             console.log(code)
+            console.log(this)
+
+            flash(view, codeBlock.from, codeBlock.length, this.addMarks)
 
             invoke('tidal_eval', { code })
                 .then(v => console.log(`Report should be written! result ${v}`))
@@ -27,4 +38,15 @@ export class EvaluateAll implements KeyBinding {
             return false;
         }
     }
+
+}
+
+function flash(view: EditorView, from: number, length: number, addMarks: StateEffectType<any>) {
+    const strikeMark = Decoration.mark({
+        attributes: { class: "flash-selection"}
+    })
+
+    view.dispatch({
+        effects: addMarks.of([strikeMark.range(from, from + length)])
+    })
 }
