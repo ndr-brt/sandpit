@@ -3,18 +3,22 @@ on: push
 
 jobs:
   test-tauri:
-    runs-on: ${{ matrix.platform }}
+    runs-on: ubuntu-stable
+    steps:
+    - uses: actions/checkout@v2
+    - name: install Rust stable
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+    - name: tests
+      run: cargo test --manifest-path=src-tauri/Cargo.toml
+  test-ui:
+    runs-on: ubuntu-stable
     steps:
     - uses: actions/checkout@v2
     - name: setup node
       uses: actions/setup-node@v1
       with:
         node-version: 16
-    - name: install Rust stable
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
-    - name: backend tests
-      run: cargo test --manifest-path=src-tauri/Cargo.toml
-    - name: ui tests
+    - name: tests
       run: yarn test
