@@ -15217,8 +15217,6 @@
                    .find(function (block) { return block.contains(cursorAt); });
                if (codeBlock) {
                    var code = view.state.doc.sliceString(codeBlock.from, codeBlock.from + codeBlock.length);
-                   console.log(code);
-                   console.log(_this);
                    flash(view, codeBlock.from, codeBlock.length, _this.addMarks);
                    r$1('tidal_eval', { code: code })
                        .then(function (v) { return console.log("Report should be written! result ".concat(v)); });

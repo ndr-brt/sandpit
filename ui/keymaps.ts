@@ -26,9 +26,6 @@ export class EvaluateAll implements KeyBinding {
         if (codeBlock) {
             let code = view.state.doc.sliceString(codeBlock.from, codeBlock.from + codeBlock.length)
 
-            console.log(code)
-            console.log(this)
-
             flash(view, codeBlock.from, codeBlock.length, this.addMarks)
 
             invoke('tidal_eval', { code })
