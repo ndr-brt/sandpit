@@ -2,7 +2,7 @@ import { nodeResolve } from "@rollup/plugin-node-resolve"
 import typescript from '@rollup/plugin-typescript';
 
 export default {
-  input: "./ui/index.ts",
+  input: "./ui/src/index.ts",
   output: {
     file: "./dist/editor.bundle.js",
     format: "iife"

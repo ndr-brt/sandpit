@@ -1,7 +1,7 @@
 import { expect, test } from '@jest/globals';
 import { EditorState } from "@codemirror/state"
 import { EditorView } from "@codemirror/view"
-import { CodeBlock } from "../../code-block"
+import { CodeBlock } from "../code-block"
 
 test('without code there are no code blocks', () => {
     let view = createView('')
