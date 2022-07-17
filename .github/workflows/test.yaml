@@ -3,7 +3,7 @@ on: push
 
 jobs:
   test-tauri:
-    runs-on: ubuntu-stable
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - name: install Rust stable
@@ -13,7 +13,7 @@ jobs:
     - name: tests
       run: cargo test --manifest-path=src-tauri/Cargo.toml
   test-ui:
-    runs-on: ubuntu-stable
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - name: setup node
