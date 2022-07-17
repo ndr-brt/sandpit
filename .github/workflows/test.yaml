@@ -21,4 +21,4 @@ jobs:
       with:
         node-version: 16
     - name: tests
-      run: yarn test
+      run: yarn & yarn test
