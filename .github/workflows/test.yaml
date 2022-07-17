@@ -10,6 +10,10 @@ jobs:
       uses: actions-rs/toolchain@v1
       with:
         toolchain: stable
+    - name: install dependencies (ubuntu only)
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgtk-3-dev webkit2gtk-4.0 libappindicator3-dev librsvg2-dev patchelf
     - name: tests
       run: cargo test --manifest-path=src-tauri/Cargo.toml
   test-ui:
@@ -20,5 +24,7 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 16
-    - name: tests
-      run: yarn & yarn test
+    - name: install
+      run: npm install
+    - name: test
+      run: npm test
