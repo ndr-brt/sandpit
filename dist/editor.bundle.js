@@ -15249,7 +15249,7 @@
    function console$1() {
        return showPanel.of(consolePanel);
    }
-   function consolePanel(view) {
+   function consolePanel() {
        var dom = document.createElement("div");
        dom.scroll();
        e('log', function (event) {
@@ -15271,17 +15271,11 @@
        return { top: true, dom: dom };
    }
 
-   // Effects can be attached to transactions to communicate with the extension
    var addMarks = StateEffect.define(), filterMarks = StateEffect.define();
-   // This value must be added to the set of extensions to enable this
    var markField = StateField.define({
-       // Start with an empty set of decorations
        create: function () { return Decoration.none; },
-       // This is called whenever the editor updates—it computes the new set
        update: function (value, tr) {
-           // Move the decorations to account for document changes
            value = value.map(tr.changes);
-           // If this transaction adds or removes decorations, apply those changes
            for (var _i = 0, _a = tr.effects; _i < _a.length; _i++) {
                var effect = _a[_i];
                if (effect.is(addMarks))
@@ -15291,7 +15285,6 @@
            }
            return value;
        },
-       // Indicate that this field provides a set of decorations
        provide: function (f) { return EditorView.decorations.from(f); }
    });
    var editor = new EditorView({

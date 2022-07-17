@@ -1,5 +1,5 @@
-import { EditorState, StateEffect, StateEffectType, StateField } from "@codemirror/state";
-import { BlockInfo, Decoration, EditorView, KeyBinding } from "@codemirror/view"
+import { StateEffectType } from "@codemirror/state";
+import { Decoration, EditorView, KeyBinding } from "@codemirror/view"
 import { invoke } from '@tauri-apps/api/tauri'
 import { CodeBlock } from "./code-block";
 
@@ -14,7 +14,6 @@ export class EvaluateAll implements KeyBinding {
     }
     
     run = (view: EditorView) => {
-
         let cursorAt = view.state.selection.ranges[0];
 
         let blocks = CodeBlock.createFrom(view.viewportLineBlocks)

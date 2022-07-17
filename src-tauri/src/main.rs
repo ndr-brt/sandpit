@@ -15,7 +15,7 @@ struct MyState(Mutex<Tidal>);
 fn tidal_eval(state: tauri::State<MyState>, window: Window, code: String) {
   let mut tidal = state.0.lock().unwrap();
   if !tidal.is_running() {
-    tidal.start(window, "/home/andrea/Code/livecoding/sc-adente/BootTidal.hs".to_string())
+    tidal.start(window, "./resources/BootTidal.hs".to_string())
   }
   tidal.send_line(code.to_string());
 }
