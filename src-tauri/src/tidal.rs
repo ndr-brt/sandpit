@@ -24,9 +24,12 @@ impl Tidal {
         return Tidal { is_running: false, sink: ghci_sink, stream: ghci_stream };
     }
 
-    pub fn send_line(&self, line: String) {
-        println!("==> {}", line);
-        self.sink.send((line + "\n").to_string());
+    pub fn send_code(&self, code: String) {
+        println!("==> {}", code);
+        self.sink.send(":{".to_string())
+          .and_then(|_| { self.sink.send((code + "\n").to_string()) })
+          .and_then(|_| { self.sink.send(":}".to_string()) })
+          .expect("Error sending a code block to tidal");
     }
 
     pub fn is_running(&self) -> bool {
@@ -79,7 +82,7 @@ impl Tidal {
         let lines = io::BufReader::new(file).lines();
         for line in lines {
             if let Ok(value) = line {
-                self.send_line(value);
+                self.send_code(value);
             }
         }
         self.is_running = true;

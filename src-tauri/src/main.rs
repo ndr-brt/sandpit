@@ -23,7 +23,7 @@ fn tidal_eval(state: tauri::State<MyState>, window: Window, code: String, app_ha
     println!("{}", path);
     tidal.start(window, path);
   }
-  tidal.send_line(code.to_string());
+  tidal.send_code(code.to_string());
 }
 
 fn main() {
