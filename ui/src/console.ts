@@ -11,7 +11,7 @@ function consolePanel(): Panel {
   dom.scroll()
 
   listen('log', event => {
-    dom.appendChild(document.createTextNode(`${event.payload.type} | ${event.payload.message}`))
+    dom.appendChild(document.createTextNode(`${event.payload.level} | ${event.payload.message}`))
     dom.appendChild(document.createElement("br"))
     dom.scrollIntoView({ block: "end", inline: "nearest" })
   })

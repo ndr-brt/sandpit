@@ -2,8 +2,6 @@ use crossbeam_channel::{unbounded, Sender, Receiver};
 use std::thread;
 use tauri::api::process::{Command, CommandEvent};
 use tauri::{Window};
-use std::fs::File;
-use std::io::{self, BufRead};
 
 pub struct Tidal {
     is_running: bool,
@@ -39,6 +37,7 @@ impl Tidal {
     pub fn start(&mut self, window: Window, boot_tidal_path: String) {
 
         let stream_clone = self.stream.clone();
+        let sink_clone = self.sink.clone();
 
         tauri::async_runtime::spawn(async move {
           let (mut rx, mut child) = Command::new("ghci")
@@ -78,13 +77,8 @@ impl Tidal {
         });
 
 
-        let file = File::open(boot_tidal_path).expect("Cannot find tidal boot file");
-        let lines = io::BufReader::new(file).lines();
-        for line in lines {
-            if let Ok(value) = line {
-                self.send_code(value);
-            }
-        }
+        sink_clone.send(format!(":script {}", boot_tidal_path)).expect("Error initializing tidal");
+
         self.is_running = true;
     }
 }
