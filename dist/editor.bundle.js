@@ -15255,6 +15255,29 @@
        }
        return EvaluateLine;
    }());
+   var EvaluateAll = /** @class */ (function () {
+       function EvaluateAll(addMarks, filterMarks) {
+           var _this = this;
+           this.key = "Ctrl-Shift-Enter";
+           this.run = function (view) {
+               view.state.selection.ranges[0];
+               var doc = view.state.doc;
+               if (doc.length > 0) {
+                   var code = doc;
+                   flash(view, 0, code.length, _this.addMarks);
+                   r$1('tidal_eval', { code: code })
+                       .then(function (v) { return console.log("Report should be written! result ".concat(v)); });
+                   return true;
+               }
+               else {
+                   return false;
+               }
+           };
+           this.addMarks = addMarks;
+           this.filterMarks = filterMarks;
+       }
+       return EvaluateAll;
+   }());
    function flash(view, from, length, addMarks) {
        var strikeMark = Decoration.mark({
            attributes: { "class": "flash-selection" }
@@ -15315,7 +15338,7 @@
        state: EditorState.create({
            extensions: [
                markField,
-               keymap.of([new EvaluateBlock(addMarks, filterMarks), new EvaluateLine(addMarks, filterMarks)]),
+               keymap.of([new EvaluateBlock(addMarks, filterMarks), new EvaluateLine(addMarks, filterMarks), new EvaluateAll(addMarks, filterMarks)]),
                keymap.of(defaultKeymap),
                oneDarkTheme,
                title(),

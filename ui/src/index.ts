@@ -2,7 +2,7 @@ import { EditorState, StateField, StateEffect } from "@codemirror/state"
 import { EditorView, keymap, showPanel, Panel, Decoration } from "@codemirror/view"
 import { defaultKeymap } from "@codemirror/commands"
 import { oneDarkTheme } from "@codemirror/theme-one-dark";
-import { EvaluateBlock, EvaluateLine } from "./keymaps"
+import { EvaluateAll, EvaluateBlock, EvaluateLine } from "./keymaps"
 import { console } from "./console"
 import { title } from "./title"
 
@@ -26,7 +26,7 @@ let editor = new EditorView({
   state: EditorState.create({
     extensions: [
       markField,
-      keymap.of([new EvaluateBlock(addMarks, filterMarks), new EvaluateLine(addMarks, filterMarks)]),
+      keymap.of([new EvaluateBlock(addMarks, filterMarks), new EvaluateLine(addMarks, filterMarks), new EvaluateAll(addMarks, filterMarks)]),
       keymap.of(defaultKeymap), 
       oneDarkTheme,
       title(),

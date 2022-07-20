@@ -66,6 +66,35 @@ export class EvaluateLine implements KeyBinding {
     }
 }
 
+export class EvaluateAll implements KeyBinding {
+    key = "Ctrl-Shift-Enter"
+    addMarks: StateEffectType<any>;
+    filterMarks: StateEffectType<any>;
+
+    constructor(addMarks: StateEffectType<any>, filterMarks: StateEffectType<any>) {
+        this.addMarks = addMarks
+        this.filterMarks = filterMarks
+    }
+    
+    run = (view: EditorView) => {
+        let cursorAt = view.state.selection.ranges[0];
+
+        let doc = view.state.doc;
+
+        if (doc.length > 0) {
+            let code = doc
+
+            flash(view, 0, code.length, this.addMarks)
+
+            invoke('tidal_eval', { code })
+                .then(v => console.log(`Report should be written! result ${v}`))
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+
 function flash(view: EditorView, from: number, length: number, addMarks: StateEffectType<any>) {
     const strikeMark = Decoration.mark({
         attributes: { class: "flash-selection"}
