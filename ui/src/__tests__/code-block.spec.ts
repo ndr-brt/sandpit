@@ -1,5 +1,5 @@
 import { expect, test } from '@jest/globals';
-import { EditorState } from "@codemirror/state"
+import { EditorState, SelectionRange } from "@codemirror/state"
 import { EditorView } from "@codemirror/view"
 import { CodeBlock } from "../code-block"
 

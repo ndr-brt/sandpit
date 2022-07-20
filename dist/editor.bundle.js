@@ -15206,8 +15206,8 @@
        return CodeBlock;
    }());
 
-   var EvaluateAll = /** @class */ (function () {
-       function EvaluateAll(addMarks, filterMarks) {
+   var EvaluateBlock = /** @class */ (function () {
+       function EvaluateBlock(addMarks, filterMarks) {
            var _this = this;
            this.key = "Ctrl-Enter";
            this.run = function (view) {
@@ -15229,7 +15229,31 @@
            this.addMarks = addMarks;
            this.filterMarks = filterMarks;
        }
-       return EvaluateAll;
+       return EvaluateBlock;
+   }());
+   var EvaluateLine = /** @class */ (function () {
+       function EvaluateLine(addMarks, filterMarks) {
+           var _this = this;
+           this.key = "Shift-Enter";
+           this.run = function (view) {
+               var cursorAt = view.state.selection.ranges[0];
+               var doc = view.state.doc;
+               var line = doc.lineAt(cursorAt.from);
+               if (line.length > 0) {
+                   var code = line.text;
+                   flash(view, line.from, line.length, _this.addMarks);
+                   r$1('tidal_eval', { code: code })
+                       .then(function (v) { return console.log("Report should be written! result ".concat(v)); });
+                   return true;
+               }
+               else {
+                   return false;
+               }
+           };
+           this.addMarks = addMarks;
+           this.filterMarks = filterMarks;
+       }
+       return EvaluateLine;
    }());
    function flash(view, from, length, addMarks) {
        var strikeMark = Decoration.mark({
@@ -15291,7 +15315,7 @@
        state: EditorState.create({
            extensions: [
                markField,
-               keymap.of([new EvaluateAll(addMarks, filterMarks)]),
+               keymap.of([new EvaluateBlock(addMarks, filterMarks), new EvaluateLine(addMarks, filterMarks)]),
                keymap.of(defaultKeymap),
                oneDarkTheme,
                title(),
