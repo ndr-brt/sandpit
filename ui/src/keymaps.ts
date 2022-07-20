@@ -3,7 +3,7 @@ import { Decoration, EditorView, KeyBinding } from "@codemirror/view"
 import { invoke } from '@tauri-apps/api/tauri'
 import { CodeBlock } from "./code-block";
 
-export class EvaluateAll implements KeyBinding {
+export class EvaluateBlock implements KeyBinding {
     key = "Ctrl-Enter"
     addMarks: StateEffectType<any>;
     filterMarks: StateEffectType<any>;
@@ -34,7 +34,6 @@ export class EvaluateAll implements KeyBinding {
             return false;
         }
     }
-
 }
 
 function flash(view: EditorView, from: number, length: number, addMarks: StateEffectType<any>) {
