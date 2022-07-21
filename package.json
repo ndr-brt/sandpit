@@ -2,6 +2,7 @@
   "name": "sandpit",
   "scripts": {
     "test": "npm t --prefix ui",
+    "build": "rollup -c",
     "start": "rollup -w -c",
     "dev": "npm start & npm run tauri dev",
     "tauri": "tauri"
