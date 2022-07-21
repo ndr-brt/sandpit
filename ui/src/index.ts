@@ -1,10 +1,11 @@
 import { EditorState, StateField, StateEffect } from "@codemirror/state"
-import { EditorView, keymap, showPanel, Panel, Decoration } from "@codemirror/view"
+import { EditorView, keymap, Decoration } from "@codemirror/view"
 import { defaultKeymap } from "@codemirror/commands"
 import { oneDarkTheme } from "@codemirror/theme-one-dark";
-import { EvaluateAll, EvaluateBlock, EvaluateLine } from "./keymaps"
+import { Evaluate } from "./evaluate"
 import { console } from "./console"
 import { title } from "./title"
+import { extendToAll, extendToBlock, extendToLine } from "./extend-range";
 
 const addMarks = StateEffect.define(), filterMarks = StateEffect.define()
 
@@ -21,12 +22,16 @@ const markField = StateField.define({
   provide: f => EditorView.decorations.from(f)
 })
 
+const evaluateAll = new Evaluate("Ctrl-Shift-Enter", addMarks, extendToAll)
+const evaluateLine = new Evaluate("Shift-Enter", addMarks, extendToLine)
+const evaluateBlock = new Evaluate("Ctrl-Enter", addMarks, extendToBlock)
+
 
 let editor = new EditorView({
   state: EditorState.create({
     extensions: [
       markField,
-      keymap.of([new EvaluateBlock(addMarks, filterMarks), new EvaluateLine(addMarks, filterMarks), new EvaluateAll(addMarks, filterMarks)]),
+      keymap.of([evaluateAll, evaluateLine, evaluateBlock]),
       keymap.of(defaultKeymap), 
       oneDarkTheme,
       title(),

@@ -15164,84 +15164,16 @@
 
    function o$2(n,t){void 0===t&&(t=!1);var e=window.crypto.getRandomValues(new Uint32Array(1))[0],o="_".concat(e);return Object.defineProperty(window,o,{value:function(e){return t&&Reflect.deleteProperty(window,o),null==n?void 0:n(e)},writable:!1,configurable:!0}),e}function r$1(r,c){return void 0===c&&(c={}),o$3(this,void 0,void 0,(function(){return a(this,(function(n){return [2,new Promise((function(n,t){var i=o$2((function(t){n(t),Reflect.deleteProperty(window,"_".concat(a));}),!0),a=o$2((function(n){t(n),Reflect.deleteProperty(window,"_".concat(i));}),!0);window.__TAURI_IPC__(r$2({cmd:r,callback:i,error:a},c));}))]}))}))}function c(n,t){void 0===t&&(t="asset");var e=encodeURIComponent(n);return navigator.userAgent.includes("Windows")?"https://".concat(t,".localhost/").concat(e):"".concat(t,"://").concat(e)}Object.freeze({__proto__:null,transformCallback:o$2,invoke:r$1,convertFileSrc:c});
 
-   var CodeBlock = /** @class */ (function () {
-       function CodeBlock(lineBlocks) {
-           this.lineBlocks = lineBlocks;
-       }
-       CodeBlock.createFrom = function (blocks) {
-           return blocks.reduce(function (acc, it) {
-               if (acc.length == 0) {
-                   acc.push(new CodeBlock([]));
-               }
-               if (it.length === 0) {
-                   acc.push(new CodeBlock([]));
-               }
-               else {
-                   acc[acc.length - 1].lineBlocks.push(it);
-               }
-               return acc;
-           }, []).filter(function (it) { return !it.isEmpty(); });
-       };
-       Object.defineProperty(CodeBlock.prototype, "from", {
-           get: function () {
-               var _a;
-               return (_a = this.lineBlocks[0]) === null || _a === void 0 ? void 0 : _a.from;
-           },
-           enumerable: false,
-           configurable: true
-       });
-       Object.defineProperty(CodeBlock.prototype, "length", {
-           get: function () {
-               return this.lineBlocks.map(function (it) { return it.length; }).reduce(function (a, b) { return a + b; }) + this.lineBlocks.length - 1;
-           },
-           enumerable: false,
-           configurable: true
-       });
-       CodeBlock.prototype.isEmpty = function () {
-           return this.lineBlocks.length === 0;
-       };
-       CodeBlock.prototype.contains = function (range) {
-           return range.from >= this.from && range.from <= this.from + this.length;
-       };
-       return CodeBlock;
-   }());
-
-   var EvaluateBlock = /** @class */ (function () {
-       function EvaluateBlock(addMarks, filterMarks) {
+   var Evaluate = /** @class */ (function () {
+       function Evaluate(key, addMarks, extend) {
            var _this = this;
-           this.key = "Ctrl-Enter";
            this.run = function (view) {
-               var cursorAt = view.state.selection.ranges[0];
-               var blocks = CodeBlock.createFrom(view.viewportLineBlocks);
-               var codeBlock = blocks
-                   .find(function (block) { return block.contains(cursorAt); });
-               if (codeBlock) {
-                   var code = view.state.doc.sliceString(codeBlock.from, codeBlock.from + codeBlock.length);
-                   flash(view, codeBlock.from, codeBlock.length, _this.addMarks);
-                   r$1('tidal_eval', { code: code })
-                       .then(function (v) { return console.log("Report should be written! result ".concat(v)); });
-                   return true;
-               }
-               else {
-                   return false;
-               }
-           };
-           this.addMarks = addMarks;
-           this.filterMarks = filterMarks;
-       }
-       return EvaluateBlock;
-   }());
-   var EvaluateLine = /** @class */ (function () {
-       function EvaluateLine(addMarks, filterMarks) {
-           var _this = this;
-           this.key = "Shift-Enter";
-           this.run = function (view) {
-               var cursorAt = view.state.selection.ranges[0];
                var doc = view.state.doc;
-               var line = doc.lineAt(cursorAt.from);
-               if (line.length > 0) {
-                   var code = line.text;
-                   flash(view, line.from, line.length, _this.addMarks);
+               var cursorAt = view.state.selection.ranges[0];
+               var block = _this.extend(cursorAt, doc);
+               if (block.from !== block.to) {
+                   var code = doc.sliceString(block.from, block.to);
+                   _this.flash(view, block, _this.addMarks);
                    r$1('tidal_eval', { code: code })
                        .then(function (v) { return console.log("Report should be written! result ".concat(v)); });
                    return true;
@@ -15250,42 +15182,20 @@
                    return false;
                }
            };
-           this.addMarks = addMarks;
-           this.filterMarks = filterMarks;
+           this.key = key;
+           this.addMarks = addMarks,
+               this.extend = extend;
        }
-       return EvaluateLine;
+       Evaluate.prototype.flash = function (view, range, addMarks) {
+           var strikeMark = Decoration.mark({
+               attributes: { "class": "flash-selection" }
+           });
+           view.dispatch({
+               effects: addMarks.of([strikeMark.range(range.from, range.to)])
+           });
+       };
+       return Evaluate;
    }());
-   var EvaluateAll = /** @class */ (function () {
-       function EvaluateAll(addMarks, filterMarks) {
-           var _this = this;
-           this.key = "Ctrl-Shift-Enter";
-           this.run = function (view) {
-               view.state.selection.ranges[0];
-               var doc = view.state.doc;
-               if (doc.length > 0) {
-                   var code = doc;
-                   flash(view, 0, code.length, _this.addMarks);
-                   r$1('tidal_eval', { code: code })
-                       .then(function (v) { return console.log("Report should be written! result ".concat(v)); });
-                   return true;
-               }
-               else {
-                   return false;
-               }
-           };
-           this.addMarks = addMarks;
-           this.filterMarks = filterMarks;
-       }
-       return EvaluateAll;
-   }());
-   function flash(view, from, length, addMarks) {
-       var strikeMark = Decoration.mark({
-           attributes: { "class": "flash-selection" }
-       });
-       view.dispatch({
-           effects: addMarks.of([strikeMark.range(from, from + length)])
-       });
-   }
 
    function o$1(o){return o$3(this,void 0,void 0,(function(){return a(this,(function(i){return [2,r$1("tauri",o)]}))}))}
 
@@ -15318,6 +15228,38 @@
        return { top: true, dom: dom };
    }
 
+   function extendToLine(selection, doc) {
+       var line = doc.lineAt(selection.from);
+       return selection.extend(line.from, line.to);
+   }
+   function extendToAll(selection, doc) {
+       return selection.extend(0, doc.length);
+   }
+   function extendToBlock(selection, doc) {
+       var startingLine = findBlockEdge(doc, doc.lineAt(selection.from), -1);
+       var endingLine = findBlockEdge(doc, doc.lineAt(selection.to), +1);
+       return selection.extend(startingLine.from, endingLine.to);
+   }
+   function findBlockEdge(doc, currentLine, direction) {
+       if (currentLine.length === 0) {
+           return currentLine;
+       }
+       else {
+           try {
+               var nextLine = doc.line(currentLine.number + direction);
+               if (nextLine.length === 0) {
+                   return currentLine;
+               }
+               else {
+                   return findBlockEdge(doc, nextLine, direction);
+               }
+           }
+           catch (_a) {
+               return currentLine;
+           }
+       }
+   }
+
    var addMarks = StateEffect.define(), filterMarks = StateEffect.define();
    var markField = StateField.define({
        create: function () { return Decoration.none; },
@@ -15334,11 +15276,14 @@
        },
        provide: function (f) { return EditorView.decorations.from(f); }
    });
+   var evaluateAll = new Evaluate("Ctrl-Shift-Enter", addMarks, extendToAll);
+   var evaluateLine = new Evaluate("Shift-Enter", addMarks, extendToLine);
+   var evaluateBlock = new Evaluate("Ctrl-Enter", addMarks, extendToBlock);
    var editor = new EditorView({
        state: EditorState.create({
            extensions: [
                markField,
-               keymap.of([new EvaluateBlock(addMarks, filterMarks), new EvaluateLine(addMarks, filterMarks), new EvaluateAll(addMarks, filterMarks)]),
+               keymap.of([evaluateAll, evaluateLine, evaluateBlock]),
                keymap.of(defaultKeymap),
                oneDarkTheme,
                title(),

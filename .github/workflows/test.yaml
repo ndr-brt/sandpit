@@ -25,6 +25,6 @@ jobs:
       with:
         node-version: 16
     - name: install
-      run: npm install
+      run: npm install --prefix ui 
     - name: test
       run: npm test
