@@ -6,6 +6,8 @@ import { Evaluate } from "./evaluate"
 import { console } from "./console"
 import { extendToAll, extendToBlock, extendToLine } from "./extend-range";
 import { listen } from "@tauri-apps/api/event";
+import { javascript } from "@codemirror/lang-javascript";
+import { defaultHighlightStyle, syntaxHighlighting } from "@codemirror/language";
 
 const addMarks = StateEffect.define(), filterMarks = StateEffect.define()
 
@@ -29,6 +31,7 @@ const evaluateBlock = new Evaluate("Ctrl-Enter", addMarks, extendToBlock)
 let tidal = new EditorView({
   state: EditorState.create({
     extensions: [
+      syntaxHighlighting(defaultHighlightStyle),
       markField,
       keymap.of([evaluateAll, evaluateLine, evaluateBlock]),
       keymap.of(defaultKeymap), 
@@ -39,7 +42,9 @@ let tidal = new EditorView({
 
 let hydra = new EditorView({
   state: EditorState.create({
-    extensions: [
+    extensions: [      
+      syntaxHighlighting(defaultHighlightStyle),
+      javascript(),
       markField,
       keymap.of([evaluateAll, evaluateLine, evaluateBlock]),
       keymap.of(defaultKeymap), 
