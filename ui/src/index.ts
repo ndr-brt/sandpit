@@ -4,8 +4,8 @@ import { defaultKeymap } from "@codemirror/commands"
 import { oneDarkTheme } from "@codemirror/theme-one-dark";
 import { Evaluate } from "./evaluate"
 import { console } from "./console"
-import { title } from "./title"
 import { extendToAll, extendToBlock, extendToLine } from "./extend-range";
+import { listen } from "@tauri-apps/api/event";
 
 const addMarks = StateEffect.define(), filterMarks = StateEffect.define()
 
@@ -26,19 +26,37 @@ const evaluateAll = new Evaluate("Ctrl-Shift-Enter", addMarks, extendToAll)
 const evaluateLine = new Evaluate("Shift-Enter", addMarks, extendToLine)
 const evaluateBlock = new Evaluate("Ctrl-Enter", addMarks, extendToBlock)
 
-
-let editor = new EditorView({
+let tidal = new EditorView({
   state: EditorState.create({
     extensions: [
       markField,
       keymap.of([evaluateAll, evaluateLine, evaluateBlock]),
       keymap.of(defaultKeymap), 
-      oneDarkTheme,
-      title(),
-      console()
+      oneDarkTheme
     ]
-  }),
-  parent: document.body
+  })
 })
 
-editor.focus()
+let hydra = new EditorView({
+  state: EditorState.create({
+    extensions: [
+      markField,
+      keymap.of([evaluateAll, evaluateLine, evaluateBlock]),
+      keymap.of(defaultKeymap), 
+      oneDarkTheme
+    ]
+  })
+})
+
+document.body.appendChild(tidal.dom)
+document.body.appendChild(hydra.dom)
+
+let console = document.getElementById("console")
+
+listen('log', event => {
+  console.appendChild(document.createTextNode(`${event.payload.level} | ${event.payload.message}`))
+  console.appendChild(document.createElement("br"))
+  console.scrollIntoView({ block: "end", inline: "nearest" })
+})
+
+tidal.focus()
