@@ -1,4 +1,6 @@
 import { nodeResolve } from "@rollup/plugin-node-resolve"
+import nodePolyfills from 'rollup-plugin-polyfill-node';
+import commonjs from "@rollup/plugin-commonjs"
 import typescript from '@rollup/plugin-typescript';
 
 export default {
@@ -7,7 +9,13 @@ export default {
     file: "./dist/editor.bundle.js",
     format: "iife"
   },
-  plugins: [nodeResolve(), typescript({
-    exclude: 'src-tauri/**'
-  })]
+  plugins: [
+    commonjs(),
+    nodePolyfills(),
+    nodeResolve({
+      browser: true,
+      moduleDirectories: ['ui/node_modules']
+    }),
+    typescript({ exclude: 'src-tauri/**' })
+  ]
 }

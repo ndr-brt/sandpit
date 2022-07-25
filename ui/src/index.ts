@@ -3,11 +3,11 @@ import { EditorView, keymap, Decoration } from "@codemirror/view"
 import { defaultKeymap } from "@codemirror/commands"
 import { oneDarkTheme } from "@codemirror/theme-one-dark";
 import { Evaluate } from "./evaluate"
-import { console } from "./console"
 import { extendToAll, extendToBlock, extendToLine } from "./extend-range";
 import { listen } from "@tauri-apps/api/event";
 import { javascript } from "@codemirror/lang-javascript";
 import { defaultHighlightStyle, syntaxHighlighting } from "@codemirror/language";
+import HydraSynth from "hydra-synth/dist/hydra-synth"
 
 const addMarks = StateEffect.define(), filterMarks = StateEffect.define()
 
@@ -65,3 +65,9 @@ listen('log', event => {
 })
 
 tidal.focus()
+
+
+const hydraSynth = new HydraSynth({ 
+  detectAudio: false,
+  canvas: document.getElementById("canvas")
+})

@@ -28,6 +28,7 @@ export class Evaluate implements KeyBinding {
 
             invoke('tidal_eval', { code })
                 .then(v => console.log(`Report should be written! result ${v}`))
+            // eval(code)
             return true;
         } else {
             return false;

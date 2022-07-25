@@ -3,6 +3,7 @@
         "esModuleInterop": true,
         "moduleResolution": "node",
         "experimentalDecorators": true,
+        "allowSyntheticDefaultImports": true,
         "target": "es6",
         "types": ["node", "jest"]
     }
