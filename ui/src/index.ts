@@ -27,9 +27,9 @@ const markField = StateField.define({
 })
 
 const tidal = new Tidal()
-const tidalEvaluateAll = new Evaluate("Ctrl-Shift-Enter", addMarks, extendToAll, tidal)
-const tidalEvaluateLine = new Evaluate("Shift-Enter", addMarks, extendToLine, tidal)
-const tidalEvaluateBlock = new Evaluate("Ctrl-Enter", addMarks, extendToBlock, tidal)
+const tidalEvaluateAll = new Evaluate("Ctrl-Shift-Enter", addMarks, filterMarks, extendToAll, tidal)
+const tidalEvaluateLine = new Evaluate("Shift-Enter", addMarks, filterMarks, extendToLine, tidal)
+const tidalEvaluateBlock = new Evaluate("Ctrl-Enter", addMarks, filterMarks, extendToBlock, tidal)
 
 let tidalEditor = new EditorView({
   state: EditorState.create({
@@ -44,9 +44,9 @@ let tidalEditor = new EditorView({
 })
 
 const hydra = new Hydra();
-const hydraEvaluateAll = new Evaluate("Ctrl-Shift-Enter", addMarks, extendToAll, hydra)
-const hydraEvaluateLine = new Evaluate("Shift-Enter", addMarks, extendToLine, hydra)
-const hydraEvaluateBlock = new Evaluate("Ctrl-Enter", addMarks, extendToBlock, hydra)
+const hydraEvaluateAll = new Evaluate("Ctrl-Shift-Enter", addMarks, filterMarks, extendToAll, hydra)
+const hydraEvaluateLine = new Evaluate("Shift-Enter", addMarks, filterMarks, extendToLine, hydra)
+const hydraEvaluateBlock = new Evaluate("Ctrl-Enter", addMarks, filterMarks, extendToBlock, hydra)
 
 let hydraEditor = new EditorView({
   state: EditorState.create({
