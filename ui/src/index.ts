@@ -8,6 +8,8 @@ import { listen } from "@tauri-apps/api/event";
 import { javascript } from "@codemirror/lang-javascript";
 import { defaultHighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import HydraSynth from "hydra-synth/dist/hydra-synth"
+import { Tidal } from "./language/tidal";
+import { Hydra } from "./language/hydra";
 
 const addMarks = StateEffect.define(), filterMarks = StateEffect.define()
 
@@ -24,37 +26,43 @@ const markField = StateField.define({
   provide: f => EditorView.decorations.from(f)
 })
 
-const evaluateAll = new Evaluate("Ctrl-Shift-Enter", addMarks, extendToAll)
-const evaluateLine = new Evaluate("Shift-Enter", addMarks, extendToLine)
-const evaluateBlock = new Evaluate("Ctrl-Enter", addMarks, extendToBlock)
+const tidal = new Tidal()
+const tidalEvaluateAll = new Evaluate("Ctrl-Shift-Enter", addMarks, extendToAll, tidal)
+const tidalEvaluateLine = new Evaluate("Shift-Enter", addMarks, extendToLine, tidal)
+const tidalEvaluateBlock = new Evaluate("Ctrl-Enter", addMarks, extendToBlock, tidal)
 
-let tidal = new EditorView({
+let tidalEditor = new EditorView({
   state: EditorState.create({
     extensions: [
       syntaxHighlighting(defaultHighlightStyle),
       markField,
-      keymap.of([evaluateAll, evaluateLine, evaluateBlock]),
+      keymap.of([tidalEvaluateAll, tidalEvaluateLine, tidalEvaluateBlock]),
       keymap.of(defaultKeymap), 
       oneDarkTheme
     ]
   })
 })
 
-let hydra = new EditorView({
+const hydra = new Hydra();
+const hydraEvaluateAll = new Evaluate("Ctrl-Shift-Enter", addMarks, extendToAll, hydra)
+const hydraEvaluateLine = new Evaluate("Shift-Enter", addMarks, extendToLine, hydra)
+const hydraEvaluateBlock = new Evaluate("Ctrl-Enter", addMarks, extendToBlock, hydra)
+
+let hydraEditor = new EditorView({
   state: EditorState.create({
     extensions: [      
       syntaxHighlighting(defaultHighlightStyle),
       javascript(),
       markField,
-      keymap.of([evaluateAll, evaluateLine, evaluateBlock]),
+      keymap.of([hydraEvaluateAll, hydraEvaluateLine, hydraEvaluateBlock]),
       keymap.of(defaultKeymap), 
       oneDarkTheme
     ]
   })
 })
 
-document.body.appendChild(tidal.dom)
-document.body.appendChild(hydra.dom)
+document.body.appendChild(tidalEditor.dom)
+document.body.appendChild(hydraEditor.dom)
 
 let console = document.getElementById("console")
 
@@ -64,7 +72,7 @@ listen('log', event => {
   console.scrollIntoView({ block: "end", inline: "nearest" })
 })
 
-tidal.focus()
+tidalEditor.focus()
 
 
 const hydraSynth = new HydraSynth({ 

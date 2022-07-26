@@ -2,17 +2,20 @@ import { SelectionRange, StateEffectType } from "@codemirror/state";
 import { Decoration, EditorView, KeyBinding } from "@codemirror/view"
 import { invoke } from '@tauri-apps/api/tauri'
 import { ExtendRange } from "./extend-range";
+import { Language } from "./language/language";
 
 export class Evaluate implements KeyBinding {
 
     key?: string;
     addMarks: StateEffectType<any>;
     extend: ExtendRange;
+    language: Language;
 
-    constructor(key: string, addMarks: StateEffectType<any>, extend: ExtendRange) {
+    constructor(key: string, addMarks: StateEffectType<any>, extend: ExtendRange, language: Language) {
         this.key = key
         this.addMarks = addMarks,
         this.extend = extend
+        this.language = language;
     }
 
     run = (view: EditorView) => {
@@ -25,10 +28,8 @@ export class Evaluate implements KeyBinding {
             let code = doc.sliceString(block.from, block.to)
 
             this.flash(view, block, this.addMarks)
-
-            invoke('tidal_eval', { code })
-                .then(v => console.log(`Report should be written! result ${v}`))
-            // eval(code)
+            this.language.eval(code)
+            
             return true;
         } else {
             return false;
