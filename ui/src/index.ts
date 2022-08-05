@@ -90,6 +90,8 @@ let hydraEditor = new EditorView({
       syntaxHighlighting(defaultHighlightStyle),
       javascript(),
       markEvalField,
+      markBackgroundField,
+      tidalUpdateListener,
       keymap.of([hydraEvaluateAll, hydraEvaluateLine, hydraEvaluateBlock]),
       keymap.of(defaultKeymap), 
       oneDarkTheme
