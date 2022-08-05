@@ -48,7 +48,8 @@ impl Tidal {
           thread::spawn(move || {
             loop {
               if let Ok(line) = stream_clone.try_recv() {
-                child.write((line + "\n").as_bytes());
+                child.write((line + "\n").as_bytes())
+                  .expect("Error emitting the log event");
               }
             }
           });

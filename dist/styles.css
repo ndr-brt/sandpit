@@ -31,6 +31,10 @@ h1 {
 .cm-gutters {
     background-color: black;
 }
+/* 
+.cm-selectionBackground {
+    background-color: lightgrey;
+} */
 
 .code-background {
     background-color: black;
