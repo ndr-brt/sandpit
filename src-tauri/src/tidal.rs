@@ -12,7 +12,8 @@ pub struct Tidal {
 #[derive(Clone, serde::Serialize)]
 struct LogPayload {
   message: String,
-  level: String
+  level: String,
+  language: String
 }
 
 impl Tidal {
@@ -56,17 +57,17 @@ impl Tidal {
             match event {
               CommandEvent::Stdout(line) => {
                 println!("t> {}", line);
-                window.emit("log", LogPayload { message: line, level: "info".to_string() })
+                window.emit("log", LogPayload { message: line, level: "info".to_string(), language: "tidal".to_string() })
                   .expect("Error emitting the log event");
               },
               CommandEvent::Stderr(line) => {
                 println!("te> {}", line);
-                window.emit("log", LogPayload { message: line, level: "error".to_string() })
+                window.emit("log", LogPayload { message: line, level: "error".to_string(), language: "tidal".to_string() })
                   .expect("Error emitting the log event");
               },
               CommandEvent::Error(line) => {
                 println!("ERROR {}", line);
-                window.emit("log", LogPayload { message: line, level: "fatal".to_string() })
+                window.emit("log", LogPayload { message: line, level: "error".to_string(), language: "tidal".to_string() })
                   .expect("Error emitting the log event");
               },
               _ => {

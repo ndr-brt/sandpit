@@ -36,6 +36,15 @@ h1 {
     background-color: black;
 }
 
+.log-info {
+    background-color: #000;
+}
+
+.log-error {
+    color: orange;
+    background-color: #000;
+}
+
 #canvas {
     position: absolute;
     background: #282c34;
