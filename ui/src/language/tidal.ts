@@ -1,4 +1,3 @@
-import { EditorView } from '@codemirror/view';
 import { invoke } from '@tauri-apps/api/tauri'
 import { Language } from "./language";
 
