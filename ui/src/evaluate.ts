@@ -50,7 +50,7 @@ export class Evaluate implements KeyBinding {
             view.dispatch({
                 effects: this.filterMarks.of((from, to) => to <= range.from || from >= range.to)
               })
-        }, 1000);
+        }, 400);
     }
 
 }

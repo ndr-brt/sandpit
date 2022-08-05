@@ -28,6 +28,14 @@ h1 {
     overflow-y: scroll;
 }
 
+.cm-gutters {
+    background-color: black;
+}
+
+.code-background {
+    background-color: black;
+}
+
 #canvas {
     position: absolute;
     background: #282c34;
@@ -53,11 +61,10 @@ h1 {
     }
     100% {
       color: auto;
-      background-color: #00000000;
     }
-  }
+}
 
 .flash-selection {
-    animation: flash 0.4s linear;
+    animation: flash 0.3s linear;
     background-color: #00000000;
 }
