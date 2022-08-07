@@ -1,14 +1,13 @@
 name: "publish"
 on:
   workflow_run:
-      workflows: [ "test" ]
-      branches: [ release ]
-      types:
-        - completed
+    workflows: [ test ]
+    branches: [ 'release' ]
+    types: [ completed ]
 
 jobs:
   publish-tauri:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
     
     strategy:
       fail-fast: false

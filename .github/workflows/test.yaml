@@ -6,6 +6,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    
+    - name: ⚡ Cache
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cargo/registry
+          ~/.cargo/git
+          src-tauri/target
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
     - name: install Rust stable
       uses: actions-rs/toolchain@v1
       with:
