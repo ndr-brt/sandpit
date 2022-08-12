@@ -7,7 +7,8 @@ export default {
   input: "./ui/src/index.ts",
   output: {
     file: "./dist/editor.bundle.js",
-    format: "iife"
+    format: "iife",
+    sourceMap: 'inline'
   },
   plugins: [
     commonjs(),
